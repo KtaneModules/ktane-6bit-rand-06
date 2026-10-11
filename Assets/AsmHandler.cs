@@ -111,8 +111,8 @@ public class AsmHandler{
                         case 7:
                             switch(Rs){
                                 case 0: return $"NOT\tR{Rd}";
-                                case 1: return $"LD\tR{Rd}";
-                                case 2: return $"ST\tR{Rd}";
+                                case 1: return $"LD\tR{Rd},Z";
+                                case 2: return $"ST\tZ,R{Rd}";
                                 case 3: return $"LSL\tR{Rd}";
                                 case 4: return $"LSR\tR{Rd}";
                                 case 5: return $"ROL\tR{Rd}";
