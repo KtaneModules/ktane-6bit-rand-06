@@ -4,18 +4,20 @@ using SixBitExtensionsNamespace;
 
 public class ASM6 {
     public List<int> registers;
-    public List<char> data;
+    public List<int> data;
     public Dictionary<char, bool> sreg;
     public int counter;
+    public bool jumped;
 
     public ASM6(){
         registers = Enumerable.Repeat(0,8).ToList();
-        data = Enumerable.Repeat('\t',128).ToList();
+        data = Enumerable.Repeat(0,128).ToList();
         sreg = new Dictionary<char, bool>{
             {'Z', false},
             {'C', false},
             {'N', false}
         };
+        jumped = false;
     }
     
 
@@ -115,10 +117,10 @@ public class ASM6 {
         sreg['Z'] = registers[Rd] == 0;
     }
     public void LD(int Rd){
-        registers[Rd] = SixBitExtensions.getInt(data[registers[7]]);
+        registers[Rd] = data[registers[7]];
     }
     public void ST(int Rd){
-        data[registers[7]] = SixBitExtensions.getChar(registers[Rd]);
+        data[registers[7]] = registers[Rd];
     }
 
 
@@ -148,17 +150,21 @@ public class ASM6 {
         registers[Rd] >>= 1;
         sreg['Z'] = registers[Rd] == 0;
     }
-    public void JMP(int addr) { counter = addr + counter & 64 - 1; }
-    public void BREQ(int addr){if (sreg['Z'])  JMP(addr);}
-    public void BRCS(int addr){if (sreg['C'])  JMP(addr);}
-    public void BRMI(int addr){if (sreg['N'])  JMP(addr);}
-    public void BRNE(int addr){if (!sreg['Z']) JMP(addr);}
-    public void BRCC(int addr){if (!sreg['C']) JMP(addr);}
-    public void BRPL(int addr){if (!sreg['N']) JMP(addr);}
+    public void RJMP(int addr) { counter = ((addr + counter) & 63) + (counter & 64);
+        jumped = true;
+    }
+    public void BREQ(int addr){if (sreg['Z'])  RJMP(addr);}
+    public void BRCS(int addr){if (sreg['C'])  RJMP(addr);}
+    public void BRMI(int addr){if (sreg['N'])  RJMP(addr);}
+    public void BRNE(int addr){if (!sreg['Z']) RJMP(addr);}
+    public void BRCC(int addr){if (!sreg['C']) RJMP(addr);}
+    public void BRPL(int addr){if (!sreg['N']) RJMP(addr);}
     
     public void DJZ(int Rd, int addr){
         registers[Rd] = SixBitExtensions.mod(registers[Rd] - 1, 64);
-        if (registers[Rd] == 0) JMP(addr);
+        if (registers[Rd] == 0) RJMP(addr);
     }
-    public void JOP(int addr) { counter = (((counter & 64) == 64) ? 0 : 64) + addr - 1; }
+    public void JOP(int addr) { counter = (((counter & 64) == 64) ? 0 : 64) + addr;
+        jumped = true;
+    }
 }

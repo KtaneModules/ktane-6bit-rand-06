@@ -40,14 +40,14 @@ public class AsmHandler{
                         case 5: asm6.OR(Rd, Rs); break;
                         case 6: asm6.XOR(Rd, Rs); break;
                         case 7:
-                            switch(Rs){
-                                case 0: asm6.NOT(Rd); break;
-                                case 1: asm6.LD(Rd); break;
-                                case 2: asm6.ST(Rd); break;
-                                case 3: asm6.LSL(Rd); break;
-                                case 4: asm6.LSR(Rd); break;
-                                case 5: asm6.ROL(Rd); break;
-                                case 6: asm6.ROR(Rd); break;
+                            switch(Rd){
+                                case 0: asm6.NOT(Rs); break;
+                                case 1: asm6.LD(Rs); break;
+                                case 2: asm6.ST(Rs); break;
+                                case 3: asm6.LSL(Rs); break;
+                                case 4: asm6.LSR(Rs); break;
+                                case 5: asm6.ROL(Rs); break;
+                                case 6: asm6.ROR(Rs); break;
                                 default: return false;
                             }
                             break;
@@ -56,7 +56,7 @@ public class AsmHandler{
                 case 1:
                     int addr = SixBitExtensions.fromBinary(bin.Substring(6,6));
                     switch(SixBitExtensions.fromBinary(bin.Substring(3,3))){
-                        case 0: asm6.JMP(addr); break;
+                        case 0: asm6.RJMP(addr); break;
                         case 1: asm6.BREQ(addr); break;
                         case 2: asm6.BRNE(addr); break;
                         case 3: asm6.BRCS(addr); break;
@@ -74,7 +74,13 @@ public class AsmHandler{
                 default: return false;
             }
         }
-        if ((asm6.counter & 63) == 63) return false;
+
+        if (asm6.jumped)
+        {
+            asm6.jumped = false;
+            return true;
+        }
+        if ((asm6.counter & 63) == 63 ) return false;
         asm6.counter++;
         return true;
     }
@@ -109,14 +115,14 @@ public class AsmHandler{
                         case 5: return $"OR\tR{Rd},R{Rs}";
                         case 6: return $"XOR\tR{Rd},R{Rs}";
                         case 7:
-                            switch(Rs){
-                                case 0: return $"NOT\tR{Rd}";
-                                case 1: return $"LD\tR{Rd},Z";
-                                case 2: return $"ST\tZ,R{Rd}";
-                                case 3: return $"LSL\tR{Rd}";
-                                case 4: return $"LSR\tR{Rd}";
-                                case 5: return $"ROL\tR{Rd}";
-                                case 6: return $"ROR\tR{Rd}";
+                            switch(Rd){
+                                case 0: return $"NOT\tR{Rs}";
+                                case 1: return $"LD\tR{Rs},Z";
+                                case 2: return $"ST\tZ,R{Rs}";
+                                case 3: return $"LSL\tR{Rs}";
+                                case 4: return $"LSR\tR{Rs}";
+                                case 5: return $"ROL\tR{Rs}";
+                                case 6: return $"ROR\tR{Rs}";
                                 default: return $"e{SixBitExtensions.binToOct(bin)}?";
                             }
                             break;
@@ -125,7 +131,7 @@ public class AsmHandler{
                 case 1:
                     string addr = SixBitExtensions.binToOct(bin.Substring(6,6));
                     switch(SixBitExtensions.fromBinary(bin.Substring(3,3))){
-                        case 0: return $"JMP\te{addr}";
+                        case 0: return $"RJMP\te{addr}";
                         case 1: return $"BREQ\te{addr}";
                         case 2: return $"BRNE\te{addr}";
                         case 3: return $"BRCS\te{addr}";
@@ -149,11 +155,11 @@ public class AsmHandler{
     public string registersToString() =>
         $"{asm6.registers.Select(x => SixBitExtensions.getChar(x).ToString()).Aggregate((a,b)=>a+b)}:{(asm6.sreg['Z'] ? "Z" : "-")}{(asm6.sreg['C'] ? "C" : "-")}{(asm6.sreg['N'] ? "N" : "-")}";
     
-    public void init(List<char> data, List<int> registers){
+    public void init(List<int> data, List<int> registers){
         asm6.counter = 0;
         program = program.Take(128).ToList();
-        for (int i=0; i<data.Count; i++) asm6.data[i] = data[i];
-        for (int i=0; i<registers.Count; i++) asm6.registers[i] = registers[i];
+        asm6.data = data.ToList();
+        asm6.registers = registers.ToList();
         asm6.sreg['Z'] = false;
         asm6.sreg['N'] = false;
         asm6.sreg['C'] = false;

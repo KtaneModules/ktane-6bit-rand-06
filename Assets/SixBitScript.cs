@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using KModkit;
-using SixBitExtensionsNamespace;
+using static SixBitExtensionsNamespace.SixBitExtensions;
 
 public class SixBitScript : MonoBehaviour
 {
@@ -17,7 +17,7 @@ public class SixBitScript : MonoBehaviour
     private List<TextMesh> symbols = new List<TextMesh>();
     private List<KMSelectable> hovers = new List<KMSelectable>();
     
-    private List<char> data = new List<char>();
+    private List<int> data = new List<int>();
     private List<int> colortable = new List<int>();
     private List<Color> colors = new List<Color>();
     private bool ModuleSolved, highlighted;
@@ -38,10 +38,10 @@ public class SixBitScript : MonoBehaviour
     List<int> getParameters(List<int> colorValues){
         int index = 6;
         if(GetComponent<KMBombInfo>().GetSerialNumberLetters().Count(x=>"AEIOU".Contains(x))>0)
-            index = GetComponent<KMBombInfo>().GetSerialNumber().IndexOf(GetComponent<KMBombInfo>().GetSerialNumberEntries().First(x=>"AEIOU".Contains(x)));
+            index = GetComponent<KMBombInfo>().GetSerialNumber().IndexOf(GetComponent<KMBombInfo>().GetSerialNumber().ToCharArray().First(x=>"AEIOU".Contains(x)));
         else if (GetComponent<KMBombInfo>().GetSerialNumberNumbers().Count(x=>x%2==0)>1)
-            index = GetComponent<KMBombInfo>().GetSerialNumber().IndexOf(GetComponent<KMBombInfo>().GetSerialNumberEntries.First(x=>"02468".Contains(x)));
-        List<int> intermediateValues = colorValues.Where((_,i)=>i%8==index);
+            index = GetComponent<KMBombInfo>().GetSerialNumber().IndexOf(GetComponent<KMBombInfo>().GetSerialNumber().ToCharArray().First(x=>"02468".Contains(x)));
+        List<int> intermediateValues = colorValues.Where((_,i)=>i%8==index).ToList();
         for (int i=1; i<8; i++){
             while (intermediateValues.Take(0).Select(x=>x%8).ToList().Contains(intermediateValues[i]%8)) intermediateValues[i]++;
         }
@@ -70,7 +70,7 @@ public class SixBitScript : MonoBehaviour
         if (currentCorout != null) return;
         switch (currentMode){
             case "DATA": 
-                commandText.text = $"e{SixBitExtensions.decToOct(SixBitExtensions.getInt(data[index]),2)}{SixBitExtensions.decToOct(colortable[index],2)}";
+                commandText.text = $"e{decToOct(data[index],2)}{decToOct(colortable[index],2)}";
                 break;
             case "PROG0":
                 commandText.text = asmHandler.commandToString(asmHandler.program[index]);
@@ -133,9 +133,12 @@ public class SixBitScript : MonoBehaviour
         if (currentMode == "DATA"){
             currentMode = "PROG0";
         }
-        else if (currentInputtedBinary == "") if (!noteMode) currentMode = "DATA";
+        else if (currentInputtedBinary == "")
+        {
+            if (!noteMode) currentMode = "DATA";
+        }
         else if (currentInputtedBinary == "0") deleteAtCursor();
-        else if (currentInputtedBinary == "1") currentMode=(currentMode == "PROG0") ? "PROG1" : "PROG0";
+        else if (currentInputtedBinary == "1") currentMode = ((currentMode == "PROG0") ? "PROG1" : "PROG0");
         render();
     }
     void deleteAtCursor(){
@@ -144,15 +147,16 @@ public class SixBitScript : MonoBehaviour
     }
     void render()
     {
+        print($"current mode: {currentMode}");
         setCursor(currentMode == "DATA"?-1:cursor);
-        List<char> n = currentMode == "DATA"?asmHandler.asm6.data:
-            currentMode=="PROG0"?asmHandler.program.Take(64).Select(s => SixBitExtensions.getChar(SixBitExtensions.fromBinary(s.Substring(0,6)))).ToList():
-            asmHandler.program.Take(128).TakeLast(64).Select(s => SixBitExtensions.getChar(SixBitExtensions.fromBinary(s.Substring(0,6)))).ToList();
+        List<int> n = currentMode == "DATA"?asmHandler.asm6.data:
+            currentMode=="PROG0"?asmHandler.program.Take(64).Select(s => fromBinary(s.Substring(0,6))).ToList():
+            asmHandler.program.Take(128).TakeLast(64).Select(s => fromBinary(s.Substring(0,6))).ToList();
         List<int> c = currentMode == "DATA"?colortable:
-            currentMode=="PROG0"?asmHandler.program.Take(64).Select(s => SixBitExtensions.fromBinary(s.Substring(6,6))).ToList():
-            asmHandler.program.Take(128).TakeLast(64).Select(s => SixBitExtensions.fromBinary(s.Substring(6,6))).ToList();
+            currentMode=="PROG0"?asmHandler.program.Take(64).Select(s => fromBinary(s.Substring(6,6))).ToList():
+            asmHandler.program.Take(128).TakeLast(64).Select(s => fromBinary(s.Substring(6,6))).ToList();
         for (int i=0; i<64; i++){
-            symbols[i].text = n[i].ToString();
+            symbols[i].text = getChar(n[i]).ToString();
             symbols[i].color = colors[c[i]];
         }
 
@@ -165,15 +169,15 @@ public class SixBitScript : MonoBehaviour
         taskChecker.loadData(initialRegisters, data);
         int nonPointerCounter = 0, pointerCounter = 0;
         while (true){
-            List<char> dataRun = asmHandler.asm6.data.ToList();
+            List<int> dataRun = asmHandler.asm6.data.ToList();
             List<int> registersRun = asmHandler.asm6.registers.ToList();
             int pointerRun = asmHandler.asm6.counter;
             setCursor(pointerRun);
             commandText.text = asmHandler.commandToString(asmHandler.program[pointerRun]);
             binaryText.text = asmHandler.registersToString();
             render();
-            bool run = asmHandler.run();
-            if (!run){
+            bool runBool = asmHandler.run();
+            if (!runBool){
                 GetComponent<KMBombModule>().HandleStrike();
                 yield break;
             }
@@ -196,7 +200,7 @@ public class SixBitScript : MonoBehaviour
                         yield return solve();
                     }
                     else{
-                        run(iteration+1);
+                        yield return run(iteration+1);
                     }
                 } 
                 yield break;
@@ -230,7 +234,7 @@ public class SixBitScript : MonoBehaviour
         colors = Enumerable.Range(0,64).Select(i => new Color(i / 16 / 3f, ((i / 4) % 4) / 3f, (i % 4) / 3f)).ToList();
         for (int i=0; i<64; i++)
         {
-            char n = SixBitExtensions.getChar(UnityEngine.Random.Range(1, 64));
+            int n = UnityEngine.Random.Range(1, 64);
             data.Add(n);
             int c = UnityEngine.Random.Range(1, 64);
             colortable.Add(c);
