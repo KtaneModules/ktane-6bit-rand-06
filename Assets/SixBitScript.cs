@@ -41,7 +41,11 @@ public class SixBitScript : MonoBehaviour
             index = GetComponent<KMBombInfo>().GetSerialNumber().IndexOf(GetComponent<KMBombInfo>().GetSerialNumberEntries().First(x=>"AEIOU".Contains(x)));
         else if (GetComponent<KMBombInfo>().GetSerialNumberNumbers().Count(x=>x%2==0)>1)
             index = GetComponent<KMBombInfo>().GetSerialNumber().IndexOf(GetComponent<KMBombInfo>().GetSerialNumberEntries.First(x=>"02468".Contains(x)));
-        return colorValues.Where((_,i)=>i%8==index);
+        List<int> intermediateValues = colorValues.Where((_,i)=>i%8==index);
+        for (int i=1; i<8; i++){
+            while (intermediateValues.Take(0).Select(x=>x%8).ToList().Contains(intermediateValues[i]%8)) intermediateValues[i]++;
+        }
+        return intermediateValues.Select(x=>x%64).Select(x=>x==0?8:x).ToList();
     }
 
     void setCursor(int index){
