@@ -7,3 +7,17 @@
 5	Q	R	S	T	U	V	W	X
 6	Y	Z	^	&	*	-	+	=
 7	~	?	<	>	[	]	(	)
+
+ 01234567
+0c  bb  c
+1 c    c 
+2 ca!!ac 
+3cMODULEc
+4cSOLVEDc
+5 ca!!ac 
+6 c    c 
+7c  bb  c
+
+ 01234567
+
+

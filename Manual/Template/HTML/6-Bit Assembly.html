@@ -33,16 +33,16 @@
                 <p>Initially, data screen shows 64 bytes of DATA block, as 64 bytes of COLOR block. COLOR is immutable.</p>
                 <p>Pressing Binary screen will show you PROG0 block, whopping 64 words of memory for your very own program!
                     That's not enough for you? Don't worry! Pressing Binary screen when current input is 1 will
-                    send you to the other program block, because there's two of them. There's also PROG1 - another 64 words!
+                    send you to the other program block, because there's two of them. The second block, PROG1, also contains 64 words!
                 </p>
                 <p>To go back to DATA, press Binary when input is empty. To clear the input - press Command. However, if you
                     try to clear the input that is already empty, you will change insertion mode (INSERT/REPLACE), default being REPLACE.
-                    To delete the command at cursor, press Binary when input is 0. To run the code, press Command when seeing DATA.
+                    To delete the command at cursor, press Binary when input is 0. To run the code, press Command while the DATA block is shown.
                     To stop running, press Command again.
                 </p>
                 <p>Your goal is to write some code that not only successfully completes the task, but also safely stops the CPU
                     by going into infinite loop (the easiest solution for that is <code>RJMP ☼00</code> in the place where you want to finish the program).
-                    Remember that if CPU goes out of the either block or meets an unknown opcode, the module will strike. Those are the only 2 cases of module striking.
+                    Remember that if CPU goes out of the either block or encounters an invalid opcode, the module will strike. Those are the only 2 cases of module striking.
                     THIS MEANS THAT CPU IS <b>NOT GOING TO</b> AUTOMATICALLY JUMP TO PROG1 IF IT GOES BEYOND ☼77 AT PROG0!
                 </p>
                 <h2>Tasks</h2>
@@ -51,7 +51,7 @@
                 <p>*a means that the value is taken from first byte of task info, *b - from second byte, *c - from third, ..., *g - from seventh. Zeroth byte is task number (0 - &lt;amount of tasks - 1&gt;)</p>
 
             </div>
-            <div class="page-footer relative-footer">Page 1 of 3</div>
+            <div class="page-footer relative-footer">Page 1 of 5</div>
         </div>
         <div class="page page-bg-02">
             <div class="page-header">
@@ -61,13 +61,14 @@
             <div class="page-content">
                 <p>To get the value in its range, modulo it by amount of possible values for this value, unless stated otherwise.</p>
                 <p>Parameters are taken from column of position of first vowel in SN, else position of first even number in SN, else position 7.
-                Going from top to bottom, if parameter modulo 8 is equal to any previous parameter modulo 8, then add 1 to parameter and modulo it by 64. If then parameter is equal to 0, add 8 to it.</p>
+                Going from top to bottom, if parameter modulo 8 is equal to any previous parameter modulo 8, then add 1 to parameter and modulo it by 64 until it's modulo 8 value is unique.</p>
+                <p>If parameter is equal to 0 (either initially or after editing), add 8 to it.</p>
                 <p>Amount of tasks is <u>26</u>, the list goes as follows:</p>
                 <table>
                     <tr><th>Task №</th><th>Problem Statement</th></tr>
                     <tr><td>0</td><td>Rearrange the values of [Ra, Rb, Rc] so Ra contains the smallest value, Rc - the largest value, Rb - the remaining value.</td></tr>
                     <tr><td>1</td><td>Set Rd to median of [Ra, Rb, Rc].</td></tr>
-                    <tr><td>2</td><td>Set Rb to amount of Collatz conjecture mod64 steps until Ra gets to 1. In case of infinite amount of steps, set Rb to 63.</td></tr>
+                    <tr><td>2</td><td>Set Rb to amount of Collatz conjecture mod64 steps* for Ra to reach 1. If the sequence never reaches 1, set Rb to 63.</td></tr>
                     <tr><td>3</td><td>Set Rc to |Ra - Rb|, Rd to (Ra + Rb) mod 64, and Re to 1 if Ra + Rb is even, otherwise to 0.</td></tr>
                     <tr><td>4</td><td>Rotate the 6-bit value of Ra by Nb bits (Nb is 0-5): to the left if Vc is even, to the right if Vc is odd.</td></tr>
                     <tr><td>5</td><td>Set Rb to the amount of 1 bits in Ra.</td></tr>
@@ -79,10 +80,10 @@
                     <tr><td>11</td><td>Set Rc to the maximum value among Nb bytes of DATA starting at Aa. If Nb is 0, set Rc to 0.</td></tr>
                     <tr><td>12</td><td>Set Rd to the address of the first byte equal to Vc among Nb bytes of DATA starting at Aa. If there is no such byte, set Rd to ☼77.</td></tr>
                     <tr><td>13</td><td>For each of Nb bytes of DATA starting at Aa: set the byte to Vc if its address is even, or to Vd if its address is odd.</td></tr>
-
                     </table>
+                    <p class="footnote">Collatz conjecture mod64: if n is even, next step is n/2, else (3n+1)%64.</p>
             </div>
-            <div class="page-footer relative-footer">Page 2 of 3</div>
+            <div class="page-footer relative-footer">Page 2 of 5</div>
         </div>
         <div class="page page-bg-03">
             <div class="page-header">
@@ -98,7 +99,7 @@
                     <tr><td>17</td><td>Set Rc to 1 if Nb bytes of DATA starting at Aa are sorted in non-descending order, otherwise to 0. Nb is 2-4.</td></tr>
                     <tr><td>18</td><td>Let L be the smaller and H the larger of Vb and Vc. Set Rd to 0 if Ra &lt; L, to 1 if L &le; Ra &le; H, and to 2 if Ra &gt; H.</td></tr>
                     <tr><td>19</td><td>Among Nb bytes of DATA starting at Aa, count the local maxima: bytes that are not the first or the last byte of the range and are strictly greater than both of their neighbours. Set Rc to that count. If Nb is less than 3, set Rc to 0.</td></tr>
-                    <tr><td>20</td><td>Replace each of Nb bytes of DATA starting at Aa with its remainder of division by Vc. Vc is ☼01-☼77.</td></tr>
+                    <tr><td>20</td><td>Replace each of Nb bytes of DATA starting at Aa with its remainder after division by Vc. Vc is ☼01-☼77.</td></tr>
                     <tr><td>21</td><td>Set Rc to the average of Nb bytes of DATA starting at Aa, rounded down. The sum is not reduced modulo 64. Nb is ☼01-☼77.</td></tr>
                     <tr><td>22</td><td>Add Nc bytes of DATA starting at Ab to Nc bytes starting at Aa element by element (1st to 1st, 2nd to 2nd, ...), modulo 64. The results replace the bytes starting at Aa.</td></tr>
                     <tr><td>23</td><td>Set Rc to the amount of bytes among Nb bytes of DATA starting at Aa that are strictly greater than the average of those Nb bytes (rounded down). Nb is ☼01-☼77.</td></tr>
@@ -106,7 +107,7 @@
                     <tr><td>25</td><td>Shift Nb bytes of DATA starting at Aa one position to the right: each byte moves to the next address, and the byte at Aa becomes Vc. The byte that was last in the range (before the shift) must be saved to Rd. Nb is ☼01-☼77.</td></tr>
                 </table>
             </div>
-            <div class="page-footer relative-footer">Page 3 of 3</div>
+            <div class="page-footer relative-footer">Page 3 of 5</div>
         </div>
         <div class="page page-bg-04">
             <div class="page-header">
@@ -118,6 +119,7 @@
                 <p>Each opcode is 1 word long, no exceptions. When you'll try to input the 12 bits of a word in any of PROG blocks, module will show the
                 readable assembly function. However, if the opcode is not valid, then module will show its octal value
                     with a question mark (for example: ☼3300?). Press 1 to accept the input and 0 to reset it.</p>
+                <p>Address Z is the R7 value.</p>
                 <p>There are 30 commands that are supported by CPU. The list goes as follows:</p>
                 <table class="opcode-table">
                     <tr><th>Command</th><th>Opcode</th><th>Description</th><th>Flags</th></tr>
@@ -126,18 +128,18 @@
                     <tr><td>ADD Rd, Rs</td><td>000 001 ddd sss</td><td>Adds Rs to Rd.</td><td>ZCN</td></tr>
                     <tr><td>SUB Rd, Rs</td><td>000 010 ddd sss</td><td>Subtracts Rs from Rd.</td><td>ZCN</td></tr>
                     <tr><td>CMP Rd, Rs</td><td>000 011 ddd sss</td><td>Compares Rs to Rd by subtracting Rs from Rd but not changing the value.</td><td>ZCN</td></tr>
-                    <tr><td>AND Rd, Rs</td><td>000 100 ddd sss</td><td>Does the logical AND of Rs and Rd.</td><td>ZN</td></tr>
-                    <tr><td>OR Rd, Rs</td> <td>000 101 ddd sss</td><td>Does the logical OR of Rs and Rd.</td><td>ZN</td></tr>
-                    <tr><td>XOR Rd, Rs</td><td>000 110 ddd sss</td><td>Does the logical XOR of Rs and Rd.</td><td>ZN</td></tr>
+                    <tr><td>AND Rd, Rs</td><td>000 100 ddd sss</td><td>Perform a bitwise AND of Rs and Rd.</td><td>ZN</td></tr>
+                    <tr><td>OR Rd, Rs</td> <td>000 101 ddd sss</td><td>Perform a bitwise OR of Rs and Rd.</td><td>ZN</td></tr>
+                    <tr><td>XOR Rd, Rs</td><td>000 110 ddd sss</td><td>Perform a bitwise XOR of Rs and Rd.</td><td>ZN</td></tr>
                     <tr><td>NOT Rd</td><td>000 111 000 ddd</td><td>Inverts Rd.</td><td>ZN</td></tr>
                     <tr><td>LD Rd, Z</td><td>000 111 001 ddd</td><td>Loads the value from address Z into Rd.</td><td>-</td></tr>
-                    <tr><td>ST Z, Rd</td><td>000 111 010 ddd</td><td>Sets the value from Rd into address Z.</td><td>-</td></tr>
-                    <tr><td>LSL Rd</td><td>000 111 011 ddd</td><td>Shifts Rd to the left. Thrown bit goes in flag C.</td><td>ZC</td></tr>
-                    <tr><td>LSR Rd</td><td>000 111 100 ddd</td><td>Shifts Rd to the right. Thrown bit goes in flag C.</td><td>ZC</td></tr>
+                    <tr><td>ST Z, Rd</td><td>000 111 010 ddd</td><td>Stores the value of Rd at address Z.</td><td>-</td></tr>
+                    <tr><td>LSL Rd</td><td>000 111 011 ddd</td><td>Shifts Rd to the left. The bit shifted out goes in flag C.</td><td>ZC</td></tr>
+                    <tr><td>LSR Rd</td><td>000 111 100 ddd</td><td>Shifts Rd to the right. The bit shifted out goes in flag C.</td><td>ZC</td></tr>
                     <tr><td>ROL Rd</td><td>000 111 101 ddd</td><td>Rotates Rd to the left through flag C.</td><td>ZC</td></tr>
                 </table>
             </div>
-            <div class="page-footer relative-footer">Page 4 of 3</div>
+            <div class="page-footer relative-footer">Page 4 of 5</div>
         </div>
         <div class="page page-bg-05">
             <div class="page-header">
@@ -160,12 +162,12 @@
                     <tr><td>ADDI Rd, #i</td><td>100 1dd iii iii</td><td>Add #i to Rd. Rd is R4-R7.</td><td>ZCN</td></tr>
                     <tr><td>SUBI Rd, #i</td><td>101 0dd iii iii</td><td>Subtract #i from Rd. Rd is R4-R7.</td><td>ZCN</td></tr>
                     <tr><td>CMPI Rd, #i</td><td>101 1dd iii iii</td><td>Compare #i with Rd, similarly to CMP. Rd is R4-R7.</td><td>ZCN</td></tr>
-                    <tr><td>ANDI Rd, #i</td><td>110 0dd iii iii</td><td>Does the logical AND of #i and Rd. Rd is R4-R7.</td><td>ZN</td></tr>
-                    <tr><td>ORI Rd, #i</td> <td>110 1dd iii iii</td><td>Does the logical OR of #i and Rd. Rd is R4-R7.</td><td>ZN</td></tr>
-                    <tr><td>XORI Rd, #i</td><td>111 0dd iii iii</td><td>Does the logical XOR of #i and Rd. Rd is R4-R7.</td><td>ZN</td></tr>
+                    <tr><td>ANDI Rd, #i</td><td>110 0dd iii iii</td><td>Performs a bitwise AND of #i and Rd. Rd is R4-R7.</td><td>ZN</td></tr>
+                    <tr><td>ORI Rd, #i</td> <td>110 1dd iii iii</td><td>Performs a bitwise OR of #i and Rd. Rd is R4-R7.</td><td>ZN</td></tr>
+                    <tr><td>XORI Rd, #i</td><td>111 0dd iii iii</td><td>Performs a bitwise XOR of #i and Rd. Rd is R4-R7.</td><td>ZN</td></tr>
                 </table>
             </div>
-            <div class="page-footer relative-footer">Page 5 of 3</div>
+            <div class="page-footer relative-footer">Page 5 of 5</div>
         </div>
     </div>
 </body>

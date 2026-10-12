@@ -20,7 +20,6 @@ public class SixBitScript : MonoBehaviour
     private List<char> data = new List<char>();
     private List<int> colortable = new List<int>();
     private List<Color> colors = new List<Color>();
-    private AsmHandler asmHandler = new AsmHandler();
     private bool ModuleSolved, highlighted;
 
     private string currentInputtedBinary = "";
@@ -31,7 +30,19 @@ public class SixBitScript : MonoBehaviour
     private string currentMode = "DATA";
     private string insertionMode = "REPLACE";
 
+    private AsmHandler asmHandler = new AsmHandler();
+    private TaskChecker taskChecker;
+    private bool noteMode;
+
     
+    List<int> getParameters(List<int> colorValues){
+        int index = 6;
+        if(GetComponent<KMBombInfo>().GetSerialNumberLetters().Count(x=>"AEIOU".Contains(x))>0)
+            index = GetComponent<KMBombInfo>().GetSerialNumber().IndexOf(GetComponent<KMBombInfo>().GetSerialNumberEntries().First(x=>"AEIOU".Contains(x)));
+        else if (GetComponent<KMBombInfo>().GetSerialNumberNumbers().Count(x=>x%2==0)>1)
+            index = GetComponent<KMBombInfo>().GetSerialNumber().IndexOf(GetComponent<KMBombInfo>().GetSerialNumberEntries.First(x=>"02468".Contains(x)));
+        return colorValues.Where((_,i)=>i%8==index);
+    }
 
     void setCursor(int index){
         if (index == -1)
@@ -81,9 +92,17 @@ public class SixBitScript : MonoBehaviour
             commandText.text = asmHandler.commandToString(asmHandler.program[cursor]);
         }
     }
+
+    void prepareNoteMode(){
+        noteMode = true;
+        currentMode="PROG0";
+        render();
+    }
+
     void pressCommand(){
         //if seeing data - run code; if seeing program and input is "" - change insertion mode; if seeing program and input is not "" - clear input
         //if run() - stop
+        if (ModuleSolved) prepareNoteMode();
         if (currentCorout != null)
         {
             StopCoroutine(currentCorout);
@@ -92,7 +111,7 @@ public class SixBitScript : MonoBehaviour
             
         }
         if (currentMode == "DATA"){
-            currentCorout = StartCoroutine(run());
+            if (!noteMode) currentCorout = StartCoroutine(run());
         }
         else if (currentInputtedBinary != ""){
             currentInputtedBinary = "";
@@ -110,7 +129,7 @@ public class SixBitScript : MonoBehaviour
         if (currentMode == "DATA"){
             currentMode = "PROG0";
         }
-        else if (currentInputtedBinary == "") currentMode = "DATA";
+        else if (currentInputtedBinary == "") if (!noteMode) currentMode = "DATA";
         else if (currentInputtedBinary == "0") deleteAtCursor();
         else if (currentInputtedBinary == "1") currentMode=(currentMode == "PROG0") ? "PROG1" : "PROG0";
         render();
@@ -136,8 +155,10 @@ public class SixBitScript : MonoBehaviour
         hoverSymbolEnded();
     }
 
-    IEnumerator run(){
-        asmHandler.init(data, Enumerable.Repeat(0,8).ToList());
+    IEnumerator run(int iteration = 0){
+        List<int> initialRegisters = Enumerable.Range(0,8).Select(_ => UnityEngine.Random.Range(0,64)).ToList();
+        asmHandler.init(data, initialRegisters);
+        taskChecker.loadData(initialRegisters, data);
         int nonPointerCounter = 0, pointerCounter = 0;
         while (true){
             List<char> dataRun = asmHandler.asm6.data.ToList();
@@ -166,10 +187,38 @@ public class SixBitScript : MonoBehaviour
             }
 
             if(pointerCounter >= 8 || nonPointerCounter >= 128){
+                if (taskChecker.checkSolution(registersRun, dataRun)){
+                    if (iteration == 5){
+                        yield return solve();
+                    }
+                    else{
+                        run(iteration+1);
+                    }
+                } 
                 yield break;
             }
             
-            yield return new WaitForSeconds(.2f);
+            if (iteration == 0) yield return new WaitForSeconds(.2f);
+        }
+    }
+
+    IEnumerator solve(){
+        string solveMessage = "c  bb  c c    c  ca!!ac cMODULEccSOLVEDc ca!!ac  c    c c  bb  c", 
+               colorMessage = "a  II  c b    b  c[44[a b))))))ba))))))c b[44[b  c    a b  II  b".Replace(' ','\t');
+        int row = 0;
+        ModuleSolved = true;
+        GetComponent<KMBombModule>().HandlePass();
+        while (!noteMode){
+            for (int j=0; j<8; j++) {
+                for (int i=0; i<7; i++){
+                symbols[i*8+j].text = symbols[i*8+j+8].text;
+                symbols[i*8+j].color = symbols[i*8+j+8].color;
+                }
+                symbols[56+j].text = solveMessage[row*8+j].ToString();
+                symbols[56+j].color = colors[getInt(colorMessage[row*8+j])];
+            }
+            row = (row+1)%8;
+            yield return new WaitForSeconds(.5f);
         }
     }
 
@@ -249,10 +298,11 @@ public class SixBitScript : MonoBehaviour
         button1.OnInteract += delegate { pressNumber(1); return false;};
         initBoard();
         asmHandler.asm6.data = data.ToList();
-        asmHandler.program = Enumerable.Range(0,128).Select(_ => SixBitExtensions.randomBinary(12)).ToList();
+        asmHandler.program = Enumerable.Repeat("000000000000",128).ToList();
         render();
         commandText.text = "";
         binaryText.text = "";
+        taskChecker = new TaskChecker(getParameters(colortable));
 	}
 	
 	

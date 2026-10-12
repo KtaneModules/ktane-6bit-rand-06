@@ -10,11 +10,13 @@ public class TaskChecker {
     List<int> data;
     List<int> param;
 
-    public TaskChecker(int task){this.task = task;}
-    public void loadData(List<int> registers, List<int> data, List<int> param){
+    public TaskChecker(List<int> param){
+        this.task = param[0];
+        this.param = param.Skip(1).ToList();
+        }
+    public void loadData(List<int> registers, List<int> data){
         this.registers = registers.ToList();
-        this.data = data.ToList();
-        this.param = param.ToList();}
+        this.data = data.ToList();}
     public bool checkSolution(List<int> registers, List<int> data){
         switch (task%taskAmount){
             case 00: return TASK00(this.registers, registers, this.data, data);
