@@ -206,7 +206,7 @@ public class TaskChecker {
         return (param[1] < 3)? newRegisters[param[2]%8] == 0:
             Enumerable.Range(param[0],param[1]-1).Select(x=>x%64).Skip(1).Count(x=>oldData[x]>oldData[(x+63)%64] && oldData[x] > oldData[(x+1)%64]) == newRegisters[param[2]%8];}
     bool TASK20(List<int> oldRegisters, List<int> newRegisters, List<int> oldData, List<int> newData){
-        return Enumerable.Range(param[0],param[1]).Select(x=>x%64).All(x=>oldRegisters[x]%param[2]==newRegisters[x]);}
+        return Enumerable.Range(param[0],param[1]).Select(x=>x%64).All(x=>oldData[x]%param[2]==newData[x]);}
     bool TASK21(List<int> oldRegisters, List<int> newRegisters, List<int> oldData, List<int> newData){
         return newRegisters[param[2]%8] == Enumerable.Range(param[0],param[1]).Select(x=>oldData[x%64]).Sum() / param[1];}
     bool TASK22(List<int> oldRegisters, List<int> newRegisters, List<int> oldData, List<int> newData){
@@ -219,6 +219,6 @@ public class TaskChecker {
         return Enumerable.Range(param[0],param[1]).Select(x=>x%64).Select((x,i)=>newData[x] == oldSorted[i]).All(x=>x);}
     bool TASK25(List<int> oldRegisters, List<int> newRegisters, List<int> oldData, List<int> newData){
         int A = param[0], N = param[1], V = param[2], R = param[3]%8;
-        return Enumerable.Range(A,N-1).Select(x=>x%64).All(x=>newRegisters[(x+1)%64] == oldRegisters[x]) &&
-            newRegisters[A] == V && oldRegisters[(A+N-1)%64] == newRegisters[R];}
+        return Enumerable.Range(A,N-1).Select(x=>x%64).All(x=>newData[(x+1)%64] == oldData[x]) &&
+               newData[A] == V && oldData[(A+N-1)%64] == newRegisters[R];}
 }

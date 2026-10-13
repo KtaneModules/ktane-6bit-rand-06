@@ -56,7 +56,7 @@ namespace SixBitExtensionsNamespace
         {
             int taken = 0;
             List<List<T>> chunks = new List<List<T>>();
-            while (taken < chunkSize)
+            while (taken < list.Count)
             {
                 chunks.Add(list.Skip(taken).Take(chunkSize).ToList());
                 taken += chunkSize;

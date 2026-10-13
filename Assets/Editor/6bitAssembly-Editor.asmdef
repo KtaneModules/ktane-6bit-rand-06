@@ -1,0 +1,10 @@
+{
+  "name": "6bitAssembly-Editor",
+  "references": [
+    "6bitAssembly"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": []
+}

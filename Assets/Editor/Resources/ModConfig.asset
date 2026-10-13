@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 615501dbe4f3fe94fbf4b564abb10237, type: 3}
+  m_Name: ModConfig
+  m_EditorClassIdentifier: 
+  id: 6bitAssembly
+  title: 6-Bit Assembly
+  author: rand06
+  description: 'This module was WIP-ed for 2yrs, but i decided to revive it and i
+    still regret this decision.
+
+    Module should be solvable as-is right now, but there''s 26 tasks instead of planned
+    64, so i will take suggestions.
+
+    Also there are some reserved opcodes, so i can add extra commands to the CPU.
+
+
+    Manual *should* be in the files of mod, not sure about that though.'
+  version: 
+  outputFolder: build
+  debugBuild: 1
+  previewImage: {fileID: 2800000, guid: d622f926178171741bd1f81a9176001a, type: 3}

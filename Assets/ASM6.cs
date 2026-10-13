@@ -11,7 +11,7 @@ public class ASM6 {
 
     public ASM6(){
         registers = Enumerable.Repeat(0,8).ToList();
-        data = Enumerable.Repeat(0,128).ToList();
+        data = Enumerable.Repeat(0,64).ToList();
         sreg = new Dictionary<char, bool>{
             {'Z', false},
             {'C', false},
