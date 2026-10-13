@@ -34,6 +34,12 @@ public class SixBitScript : MonoBehaviour
     private TaskChecker taskChecker;
     private bool noteMode;
 
+    private static int ModuleIdCounter;
+    private int ModuleId;
+
+    void Awake(){ModuleId = ++ModuleIdCounter};
+    void log(string msg){Debug.Log($"[6-Bit Assembly #{ModuleId}] {msg}")};
+
     
     List<int> getParameters(List<int> colorValues){
         int index = 6;
@@ -164,17 +170,21 @@ public class SixBitScript : MonoBehaviour
     }
 
     IEnumerator run(int iteration = 0){
+        if(iteration==0){
         List<int> initialRegisters = Enumerable.Range(0,8).Select(_ => UnityEngine.Random.Range(0,64)).ToList();
         asmHandler.init(data, initialRegisters);
         taskChecker.loadData(initialRegisters, data);
+        }
         int nonPointerCounter = 0, pointerCounter = 0;
+        log($"Starting iteration {iteration}.");
         while (true){
             List<int> dataRun = asmHandler.asm6.data.ToList();
             List<int> registersRun = asmHandler.asm6.registers.ToList();
             int pointerRun = asmHandler.asm6.counter;
             setCursor(pointerRun);
             commandText.text = asmHandler.commandToString(asmHandler.program[pointerRun]);
-            binaryText.text = asmHandler.registersToString();
+            binaryText.text = asmHandler.registersToString().Replace("\t","    ");
+            if (iteration == 0) log($"PC: {pointerRun}, current command: {asmHandler.commandToString(asmHandler.program[pointerRun])}, registers/flags: {asmHandler.registersToString().Replace("\t","_")}.");
             render();
             bool runBool = asmHandler.run();
             if (!runBool){
@@ -197,9 +207,14 @@ public class SixBitScript : MonoBehaviour
             if(pointerCounter >= 8 || nonPointerCounter >= 128){
                 if (taskChecker.checkSolution(registersRun, dataRun)){
                     if (iteration == 5){
+                        log("Solving the module.");
                         yield return solve();
                     }
                     else{
+                        List<int> initialRegisters1 = Enumerable.Range(0,8).Select(_ => UnityEngine.Random.Range(0,64)).ToList();
+                        List<int> data1 = Enumerable.Range(0,64).Select(_ => UnityEngine.Random.Range(1,64)).ToList();
+                        asmHandler.init(data1, initialRegisters1);
+                        taskChecker.loadData(initialRegisters1, data1);
                         yield return run(iteration+1);
                     }
                 } 
