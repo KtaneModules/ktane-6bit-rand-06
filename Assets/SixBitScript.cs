@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using KModkit;
 using static SixBitExtensionsNamespace.SixBitExtensions;
@@ -37,8 +38,8 @@ public class SixBitScript : MonoBehaviour
     private static int ModuleIdCounter;
     private int ModuleId;
 
-    void Awake(){ModuleId = ++ModuleIdCounter};
-    void log(string msg){Debug.Log($"[6-Bit Assembly #{ModuleId}] {msg}")};
+    void Awake() { ModuleId = ++ModuleIdCounter;}
+    void log(string msg) { Debug.Log($"[6-Bit Assembly #{ModuleId}] {msg}");}
 
     
     List<int> getParameters(List<int> colorValues){
@@ -258,7 +259,7 @@ public class SixBitScript : MonoBehaviour
             hovers[i1].OnHighlight += delegate{hoverSymbol(i1);};
             hovers[i1].OnHighlightEnded += hoverSymbolEnded;
         }
-        
+        log($"Colors: {colortable.Select(c => getChar(c).ToString()).Aggregate((a,b)=>a+b)}");
     }
 
     void pressNumber(int num)
@@ -333,4 +334,38 @@ public class SixBitScript : MonoBehaviour
 		if (ModuleSolved || !highlighted) return;
         if (Input.GetKeyDown(KeyCode.Alpha0) || Input.GetKeyDown(KeyCode.Keypad0)) button0.OnInteract();
         if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1)) button1.OnInteract();}
+
+    private string TwitchHelpMessage = "Use !{0} 0/1/C/B to press 0, 1, Command and Binary. Presses may be chained.";
+
+    IEnumerator ProcessTwitchCommand(string command)
+    {
+        yield return null;
+        command = command.ToUpperInvariant().Replace(" ", "");
+        if (!Regex.IsMatch(command,"^[01BC]+$"))
+        {
+            yield return "sendtochaterror Invalid command.";
+            yield break;
+        }
+
+        yield return "solve";
+        yield return "strike";
+        foreach (char c in command)
+        {
+            switch (c)
+            {
+                case '0': button0.OnInteract(); break;
+                case '1': button1.OnInteract(); break;
+                case 'B': binaryScreen.OnInteract(); break;
+                case 'C': commandScreen.OnInteract(); break;
+                default: yield return "sendtochaterror Invalid command."; break;
+            }
+            yield return new WaitForSeconds(.1f);
+        }
+    }
+
+    IEnumerator TwitchHandleForcedSolve()
+    {
+        yield return null;
+        yield return solve();
+    }
 }
