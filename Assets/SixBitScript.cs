@@ -168,6 +168,7 @@ public class SixBitScript : MonoBehaviour
         for (int i=0; i<64; i++){
             symbols[i].text = getChar(n[i]).ToString();
             symbols[i].color = colors[c[i]];
+            hovers[i].GetComponent<MeshRenderer>().material.color = c[i]==0?Color.gray : Color.clear;
         }
 
         hoverSymbolEnded();
@@ -248,7 +249,7 @@ public class SixBitScript : MonoBehaviour
     IEnumerator solve(){
         killCorout();
         string solveMessage = "c  bb  c c    c  ca!!ac cMODULEccSOLVEDc ca!!ac  c    c c  bb  c", 
-               colorMessage = "a  II  c b    b  c[44[a b))))))ba))))))c b[44[b  c    a b  II  b".Replace(' ','\t');
+               colorMessage = "a  II  c b    b  c[44[a b))))))ba))))))c b[44[b  c    a b  II  b".Replace(' ','_');
         int row = 0;
         ModuleSolved = true;
         GetComponent<KMBombModule>().HandlePass();
@@ -268,11 +269,12 @@ public class SixBitScript : MonoBehaviour
 
     void initBoard(){
         colors = Enumerable.Range(0,64).Select(i => new Color(i / 16 / 3f, ((i / 4) % 4) / 3f, (i % 4) / 3f)).ToList();
+        //colors[0] = new Color(1, 1, 1) / 5f;
         for (int i=0; i<64; i++)
         {
             int n = UnityEngine.Random.Range(1, 64);
             data.Add(n);
-            int c = UnityEngine.Random.Range(1, 64);
+            int c = UnityEngine.Random.Range(0, 64);
             colortable.Add(c);
             int i1=i;
             hovers[i1].OnInteract += delegate{pressSymbol(i1); return false;};

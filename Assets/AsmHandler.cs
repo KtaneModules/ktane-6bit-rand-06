@@ -91,13 +91,13 @@ public class AsmHandler{
             int Rd = SixBitExtensions.fromBinary(bin.Substring(4,2))+4;
             string imm6 = SixBitExtensions.binToOct(bin.Substring(6,6));
             switch (SixBitExtensions.fromBinary(bin.Substring(1,3))){
-                case 0: return $"LDI\tR{Rd},e{imm6}";
-                case 1: return $"ADDI\tR{Rd},e{imm6}";
-                case 2: return $"SUBI\tR{Rd},e{imm6}";
-                case 3: return $"CMPI\tR{Rd},e{imm6}";
-                case 4: return $"ANDI\tR{Rd},e{imm6}";
-                case 5: return $"ORI\tR{Rd},e{imm6}";
-                case 6: return $"XORI\tR{Rd},e{imm6}";
+                case 0: return $"LDI R{Rd},e{imm6}";
+                case 1: return $"ADDI R{Rd},e{imm6}";
+                case 2: return $"SUBI R{Rd},e{imm6}";
+                case 3: return $"CMPI R{Rd},e{imm6}";
+                case 4: return $"ANDI R{Rd},e{imm6}";
+                case 5: return $"ORI R{Rd},e{imm6}";
+                case 6: return $"XORI R{Rd},e{imm6}";
                 default: return $"e{SixBitExtensions.binToOct(bin)}?";
             }
         }
@@ -107,22 +107,22 @@ public class AsmHandler{
                     int Rd = SixBitExtensions.fromBinary(bin.Substring(6,3));
                     int Rs = SixBitExtensions.fromBinary(bin.Substring(9,3));
                     switch(SixBitExtensions.fromBinary(bin.Substring(3,3))){
-                        case 0: return $"MOV\tR{Rd},R{Rs}";
-                        case 1: return $"ADD\tR{Rd},R{Rs}";
-                        case 2: return $"SUB\tR{Rd},R{Rs}";
-                        case 3: return $"CMP\tR{Rd},R{Rs}";
-                        case 4: return $"AND\tR{Rd},R{Rs}";
-                        case 5: return $"OR\tR{Rd},R{Rs}";
-                        case 6: return $"XOR\tR{Rd},R{Rs}";
+                        case 0: return $"MOV R{Rd},R{Rs}";
+                        case 1: return $"ADD R{Rd},R{Rs}";
+                        case 2: return $"SUB R{Rd},R{Rs}";
+                        case 3: return $"CMP R{Rd},R{Rs}";
+                        case 4: return $"AND R{Rd},R{Rs}";
+                        case 5: return $"OR R{Rd},R{Rs}";
+                        case 6: return $"XOR R{Rd},R{Rs}";
                         case 7:
                             switch(Rd){
-                                case 0: return $"NOT\tR{Rs}";
-                                case 1: return $"LD\tR{Rs},Z";
-                                case 2: return $"ST\tZ,R{Rs}";
-                                case 3: return $"LSL\tR{Rs}";
-                                case 4: return $"LSR\tR{Rs}";
-                                case 5: return $"ROL\tR{Rs}";
-                                case 6: return $"ROR\tR{Rs}";
+                                case 0: return $"NOT R{Rs}";
+                                case 1: return $"LD R{Rs},Z";
+                                case 2: return $"ST Z,R{Rs}";
+                                case 3: return $"LSL R{Rs}";
+                                case 4: return $"LSR R{Rs}";
+                                case 5: return $"ROL R{Rs}";
+                                case 6: return $"ROR R{Rs}";
                                 default: return $"e{SixBitExtensions.binToOct(bin)}?";
                             }
                             break;
@@ -131,20 +131,20 @@ public class AsmHandler{
                 case 1:
                     string addr = SixBitExtensions.binToOct(bin.Substring(6,6));
                     switch(SixBitExtensions.fromBinary(bin.Substring(3,3))){
-                        case 0: return $"RJMP\te{addr}";
-                        case 1: return $"BREQ\te{addr}";
-                        case 2: return $"BRNE\te{addr}";
-                        case 3: return $"BRCS\te{addr}";
-                        case 4: return $"BRCC\te{addr}";
-                        case 5: return $"BRMI\te{addr}";
-                        case 6: return $"BRPL\te{addr}";
-                        case 7: return $"JOP\te{addr}";
+                        case 0: return $"RJMP e{addr}";
+                        case 1: return $"BREQ e{addr}";
+                        case 2: return $"BRNE e{addr}";
+                        case 3: return $"BRCS e{addr}";
+                        case 4: return $"BRCC e{addr}";
+                        case 5: return $"BRMI e{addr}";
+                        case 6: return $"BRPL e{addr}";
+                        case 7: return $"JOP e{addr}";
                     }
                     break;
                 case 2:
                     Rd = SixBitExtensions.fromBinary(bin.Substring(3,3));
                     addr = SixBitExtensions.binToOct(bin.Substring(6,6));
-                    return $"DJZ\tR{Rd},e{addr}";
+                    return $"DJZ R{Rd},e{addr}";
                 default: return $"e{SixBitExtensions.binToOct(bin)}?";
             }
         }

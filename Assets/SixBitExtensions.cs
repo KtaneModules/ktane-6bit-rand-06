@@ -8,10 +8,10 @@ namespace SixBitExtensionsNamespace
     public static class SixBitExtensions
     {
         public static char getChar(int index) =>
-            "\tabcdefg0123456789.,!@#$ABCDEFGHIJKLMNOPQRSTUVWXYZ^&*-+=~?<>[]()"[index];
+            "_abcdefg0123456789.,!@#$ABCDEFGHIJKLMNOPQRSTUVWXYZ^&*-+=~?<>[]()"[index];
 
         public static int getInt(char c) =>
-            "\tabcdefg0123456789.,!@#$ABCDEFGHIJKLMNOPQRSTUVWXYZ^&*-+=~?<>[]()".IndexOf(c);
+            "_abcdefg0123456789.,!@#$ABCDEFGHIJKLMNOPQRSTUVWXYZ^&*-+=~?<>[]()".IndexOf(c);
 
         public static int mod(int a, int b) => b == 0 ? 0 : ((a % b) + b) % b;
 
