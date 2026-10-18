@@ -17,7 +17,7 @@ public class TaskChecker {
     public void loadData(List<int> registers, List<int> data){
         this.registers = registers.ToList();
         this.data = data.ToList();}
-    public bool checkSolution(List<int> registers, List<int> data){
+    public string checkSolution(List<int> registers, List<int> data){
         switch (task%taskAmount){
             case 00: return TASK00(this.registers, registers, this.data, data);
             case 01: return TASK01(this.registers, registers, this.data, data);
@@ -83,7 +83,7 @@ public class TaskChecker {
             //case 61: return TASK61(this.registers, registers, this.data, data);
             //case 62: return TASK62(this.registers, registers, this.data, data);
             //case 63: return TASK63(this.registers, registers, this.data, data);
-            default: return true;
+            default: return "";
         }}
 
     static string Reg(List<int> newRegisters, int index, int expected) =>
@@ -229,7 +229,7 @@ public class TaskChecker {
     }
     string TASK15(List<int> oldRegisters, List<int> newRegisters, List<int> oldData, List<int> newData){
         int ans = Enumerable.Range(param[0], param[1]).Select(x => oldData[x%64]).ToList()
-            .Chunk(2).Select(x => x.Length==2 ? Math.Abs(x[0]-x[1]) : x[0]).Sum() % 64;
+            .Chunk(2).Select(x => x.Count==2 ? Math.Abs(x[0]-x[1]) : x[0]).Sum() % 64;
         return Reg(newRegisters, param[2]%8, ans);
     }
     string TASK16(List<int> oldRegisters, List<int> newRegisters, List<int> oldData, List<int> newData){

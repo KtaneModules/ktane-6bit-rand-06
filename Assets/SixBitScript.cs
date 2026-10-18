@@ -218,8 +218,10 @@ public class SixBitScript : MonoBehaviour
             allCounter++;
             if (allCounter >= 65536) {currentCorout = null;
                 yield break;}
-            if(pointerCounter >= 8 || nonPointerCounter >= 128){
-                if (taskChecker.checkSolution(registersRun, dataRun)){
+            if(pointerCounter >= 8 || nonPointerCounter >= 128)
+            {
+                string errorCode = taskChecker.checkSolution(registersRun, dataRun);
+                if (errorCode == ""){
                     if (iteration == 5){
                         log("Solving the module.");
                         StartCoroutine(solve());
@@ -231,7 +233,11 @@ public class SixBitScript : MonoBehaviour
                         taskChecker.loadData(initialRegisters1, data1);
                         yield return run(iteration+1);
                     }
-                } 
+                }
+                else
+                {
+                    log(errorCode);
+                }
                 currentCorout = null;
                 yield break;
             }

@@ -97,7 +97,7 @@ public class AsmHandler{
                 case 3: return $"CMPI R{Rd},e{imm6}";
                 case 4: return $"ANDI R{Rd},e{imm6}";
                 case 5: return $"ORI R{Rd},e{imm6}";
-                case 6: return $"XORI R{Rd},e{imm6}";
+                case 6: return $"EORI R{Rd},e{imm6}";
                 default: return $"e{SixBitExtensions.binToOct(bin)}?";
             }
         }
@@ -113,12 +113,12 @@ public class AsmHandler{
                         case 3: return $"CMP R{Rd},R{Rs}";
                         case 4: return $"AND R{Rd},R{Rs}";
                         case 5: return $"OR R{Rd},R{Rs}";
-                        case 6: return $"XOR R{Rd},R{Rs}";
+                        case 6: return $"EOR R{Rd},R{Rs}";
                         case 7:
                             switch(Rd){
                                 case 0: return $"NOT R{Rs}";
-                                case 1: return $"LD R{Rs},Z";
-                                case 2: return $"ST Z,R{Rs}";
+                                case 1: return $"LD R{Rs},P";
+                                case 2: return $"ST P,R{Rs}";
                                 case 3: return $"LSL R{Rs}";
                                 case 4: return $"LSR R{Rs}";
                                 case 5: return $"ROL R{Rs}";
