@@ -38,6 +38,8 @@ public class SixBitScript : MonoBehaviour
     private static int ModuleIdCounter;
     private int ModuleId;
 
+    private float timeout = 0.2f;
+    
     void Awake() { ModuleId = ++ModuleIdCounter;}
     void log(string msg) { Debug.Log($"[6-Bit Assembly #{ModuleId}] {msg}");}
 
@@ -184,7 +186,7 @@ public class SixBitScript : MonoBehaviour
         yield return null;
         }
         int nonPointerCounter = 0, pointerCounter = 0, allCounter = 0;
-        log($"Starting iteration {iteration}.");
+        log($"Starting iteration {iteration}.{(iteration==0?" Debug info is in Filtered Log.":"")}");
         while (true){
             List<int> dataRun = asmHandler.asm6.data.ToList();
             List<int> registersRun = asmHandler.asm6.registers.ToList();
@@ -195,7 +197,7 @@ public class SixBitScript : MonoBehaviour
                 binaryText.text = asmHandler.registersToString().Replace("\t", "    ");
                 render();
             }
-            if (iteration == 0) log($"PC: {pointerRun}, current command: {asmHandler.commandToString(asmHandler.program[pointerRun])}, registers/flags: {asmHandler.registersToString().Replace("\t","_")}.");
+            if (iteration == 0) print($"PC: {pointerRun}, current command: {asmHandler.commandToString(asmHandler.program[pointerRun])}, registers/flags: {asmHandler.registersToString().Replace("\t","_")}.");
             bool runBool = asmHandler.run();
             if (!runBool){
                 GetComponent<KMBombModule>().HandleStrike();
@@ -237,12 +239,13 @@ public class SixBitScript : MonoBehaviour
                 else
                 {
                     log(errorCode);
+                    binaryText.text = "";
                 }
                 currentCorout = null;
                 yield break;
             }
 
-            if (iteration == 0) yield return new WaitForSeconds(.2f);
+            if (iteration == 0) yield return new WaitForSeconds(timeout);
             else if (allCounter%256==0) yield return null;
         }
     }
@@ -288,12 +291,17 @@ public class SixBitScript : MonoBehaviour
             hovers[i1].OnHighlightEnded += hoverSymbolEnded;
         }
         log($"Colors: {colortable.Select(c => getChar(c).ToString()).Aggregate((a,b)=>a+b)}");
+        log($"Initial DATA: {data.Select(c => getChar(c).ToString()).Aggregate((a,b)=>a+b)}");
     }
 
     void pressNumber(int num)
     {
         if (ModuleSolved && !noteMode) return;
-        if (currentCorout != null) return;
+        if (currentCorout != null)
+        {
+            timeout *= num == 1 ? 0.5f : 2f;
+            return;
+        }
         if (currentMode == "DATA") return;
         if (currentInputtedBinary.Length < 12)
         {
@@ -356,6 +364,7 @@ public class SixBitScript : MonoBehaviour
         commandText.text = "";
         binaryText.text = "";
         taskChecker = new TaskChecker(getParameters(colortable));
+        log(taskChecker.describe());
 	}
 	
 	

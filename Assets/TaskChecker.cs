@@ -96,6 +96,54 @@ public class TaskChecker {
 
     static string FirstError(params string[] errors) =>
         errors.FirstOrDefault(e => e != "") ?? "";
+    
+    public string describe(){
+        int t = task % taskAmount;
+        return $"Task {t}: {describeBody(t)}";
+    }
+    
+    static string Oct(int v) => $"☼{decToOct(v, 2)}";
+    string Rn(int i) => "R" + (param[i] % 8);              // регистр
+    string An(int i) => Oct(param[i] % 64);                 // адрес
+    string Vn(int i) => Oct(param[i] % 64);                 // константа
+    string Nn(int i) => Oct(param[i] % 64);                 // количество
+    string Dn(int i) => $"Data[{An(i)}]";                   // байт DATA
+    string Bytes(int n, int a) => $"{Nn(n)} bytes of DATA starting at {An(a)}";
+    
+    string describeBody(int t){
+        switch (t){
+            case 0: return $"Rearrange the values of [{Rn(0)}, {Rn(1)}, {Rn(2)}] so that {Rn(0)} contains the smallest value, {Rn(2)} - the largest value, {Rn(1)} - the remaining value.";
+            case 1: return $"Set {Rn(3)} to the median of [{Rn(0)}, {Rn(1)}, {Rn(2)}].";
+            case 2: return $"Set {Rn(1)} to the number of Collatz conjecture mod ☼100 steps until {Rn(0)} gets to ☼01. In case of an infinite number of steps, set {Rn(1)} to ☼77.";
+            case 3: return $"Set {Rn(2)} to |{Rn(0)} - {Rn(1)}|, {Rn(3)} to ({Rn(0)} + {Rn(1)}) mod ☼100, and {Rn(4)} to ☼01 if {Rn(0)} + {Rn(1)} is even, otherwise to ☼00.";
+            case 4: return $"Rotate the 6-bit value of {Rn(0)} by {Oct(param[1] % 6)} bits ({Oct(param[1] % 6)} is in range ☼00-☼05): to the left if {Vn(2)} is even, to the right if {Vn(2)} is odd.";
+            case 5: return $"Set {Rn(1)} to the number of '1' bits in {Rn(0)}.";
+            case 6: return $"Set {Rn(1)} to ☼01 if {Rn(0)} is a power of two (☼01, ☼02, ☼04, ☼10, ☼20 or ☼40), otherwise set {Rn(1)} to ☼00.";
+            case 7: return $"Set {Dn(2)} to ({Dn(0)} + {Dn(1)}) mod ☼100. Set {Rn(3)} to ☼01 if {Dn(0)} + {Dn(1)} is at least ☼100 (carry occurred), otherwise to ☼00.";
+            case 8: return $"If {Rn(0)} > {Rn(1)}, swap the values of {Rn(0)} and {Rn(1)}. Otherwise, leave them unchanged.";
+            case 9: return $"Set {Rn(2)} to ☼01 if {Dn(0)} > {Vn(1)}, to ☼00 if {Dn(0)} = {Vn(1)}, and to ☼77 (-1) if {Dn(0)} < {Vn(1)}.";
+            case 10: return $"Set {Rn(2)} to the sum of {Bytes(1,0)}, modulo ☼100.";
+            case 11: return $"Set {Rn(2)} to the maximum value among {Bytes(1,0)}.";
+            case 12: return $"Set {Rn(3)} to the address of the first byte equal to {Vn(2)} among {Bytes(1,0)}. If there is no such byte, set {Rn(3)} to ☼77.";
+            case 13: return $"For each of {Bytes(1,0)}: set the byte to {Vn(2)} if its address is even, or to {Vn(3)} if its address is odd.";
+            case 14: return $"Reverse the order of bits in each of {Bytes(1,0)} (bit 0 <-> bit 5, bit 1 <-> bit 4, bit 2 <-> bit 3).";
+            case 15: return $"Split {Bytes(1,0)} into consecutive pairs (1st and 2nd, 3rd and 4th, ...). Set {Rn(2)} to the sum of |x - y| over all pairs, modulo ☼100, where x and y are the bytes of a pair. If the number of bytes is odd, the last byte has no pair and is added as is.";
+            case 16: return $"Copy {Bytes(1,0)} to {Nn(1)} bytes starting at {An(2)} in reverse order: the last byte of the source becomes the first byte of the destination, and so on.";
+            case 17: return $"Set {Rn(2)} to ☼01 if {Oct(2 + param[1] % 3)} bytes of DATA starting at {An(0)} are sorted in non-descending order, otherwise to ☼00.";
+            case 18: {
+                int L = Math.Min(param[1] % 64, param[2] % 64), H = Math.Max(param[1] % 64, param[2] % 64);
+                return $"Let L = {Oct(L)} be the smaller and H = {Oct(H)} the larger of {Vn(1)} and {Vn(2)}. Set {Rn(3)} to ☼00 if {Rn(0)} < {Oct(L)}, to ☼01 if {Oct(L)} <= {Rn(0)} <= {Oct(H)}, and to ☼02 if {Rn(0)} > {Oct(H)}.";
+            }
+            case 19: return $"Among {Bytes(1,0)}, count the local maxima: bytes that are not the first or the last byte of the range and are strictly greater than both of their neighbours. Set {Rn(2)} to that count. If the number of bytes is less than ☼03, set {Rn(2)} to ☼00.";
+            case 20: return $"Replace each of {Bytes(1,0)} with its remainder of division by {Vn(2)}.";
+            case 21: return $"Set {Rn(2)} to the average of {Bytes(1,0)}, rounded down. The sum is not reduced modulo ☼100.";
+            case 22: return $"Add {Nn(2)} bytes of DATA starting at {An(1)} to {Nn(2)} bytes starting at {An(0)} element by element (1st to 1st, 2nd to 2nd, ...), modulo ☼100. The results replace the bytes starting at {An(0)}.";
+            case 23: return $"Set {Rn(2)} to the number of bytes among {Bytes(1,0)} that are strictly greater than the average of those {Nn(1)} bytes (rounded down).";
+            case 24: return $"Sort {Bytes(1,0)} in non-descending order, in place.";
+            case 25: return $"Shift {Bytes(1,0)} one position to the right: each byte moves to the next address, and the byte at {An(0)} becomes {Vn(2)}. The byte that was last in the range (before the shift) must be saved to {Rn(3)}.";
+            default: return "(no description)";
+        }
+    }
  
     
  
